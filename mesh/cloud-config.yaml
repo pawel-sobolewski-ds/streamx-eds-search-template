@@ -1,0 +1,33 @@
+---
+global:
+  services:
+    ingestion:
+      rest-ingestion:
+        replicas: 1
+    processing:
+      indexable-resources-sql-transformer:
+        stateful: true
+      rendering-engine:
+        stateful: true
+      resource-downloader:
+        stateful: true
+    edge:
+      opensearch-sink:
+        replicas: 1
+        stateful: true
+      web-server-sink:
+        replicas: 1
+        stateful: true
+clusters:
+  eu-central-waw-edge:
+    enabled: true
+    overlay: {}
+  eu-west-par-processing:
+    enabled: true
+    overlay: {}
+  us-west-lax-edge:
+    enabled: true
+    overlay: {}
+  us-east-was-edge:
+    enabled: false
+    overlay: {}
