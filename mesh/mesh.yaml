@@ -78,12 +78,12 @@ processing:
       processor:
         incoming:
           pages:
-            ref: "relay.pages"
+            ref: "inbox.pages"
           fragments:
             ref: "relay.fragments"
         outgoing:
           indexable-resources:
-            ref: "relay.indexable-resources"
+            ref: "outbox.indexable-resources"
           indexable-resource-fragments:
             ref: "outbox.indexable-resource-fragments"
         environment:
@@ -91,31 +91,7 @@ processing:
         volumesFrom:
           configs:
           - "indexable-resources-producer.yaml:/deployments/config/application.yaml"
-  indexable-resources-relay:
-    descriptor: "relay"
-    containers:
-      service:
-        incoming:
-          events:
-            ref: "relay.indexable-resources"
-        outgoing:
-          relayed-events:
-            ref: "outbox.indexable-resources"
-  pages-external-references-rewriter:
-    descriptor: "external-references-rewriter"
-    containers:
-      processor:
-        incoming:
-          incoming-resources:
-            ref: "inbox.pages"
-        outgoing:
-          outgoing-resources:
-            ref: "relay.pages"
-          download-requests:
-            ref: ""
-        environmentFrom:
-          configs:
-          - "external-references-rewriter.pages.properties"
+
 edge:
   opensearch-sink:
     descriptor: "opensearch-sink"
