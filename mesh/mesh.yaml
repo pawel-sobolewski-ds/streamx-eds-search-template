@@ -112,8 +112,8 @@ processing:
     containers:
       processor:
         incoming:
-          pages:
-            ref: relay.pages
+          incoming-resources:
+            ref: inbox.pages
           fragments:
             ref: relay.fragments
         outgoing:
