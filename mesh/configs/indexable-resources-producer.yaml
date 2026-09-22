@@ -56,10 +56,4 @@ streamx:
               key: author
               value-selector: "./@content"
 
-            adapt-to-year:
-              facet: false
-              element-selector: "//*[local-name()='link'][@rel='canonical']"
-              key: year
-              value-selector: "substring-before(substring-after(./@href, 'https://adapt.to/'), '/')"
-
 
