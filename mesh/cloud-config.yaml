@@ -1,12 +1,5 @@
 ---
-global:
-  services:
-    ingestion:
-      rest-ingestion:
-        replicas: 1
-    processing:
-      indexable-resources-sql-transformer:
-        stateful: true
+global: {}
 clusters:
   eu-central-waw-edge:
     enabled: true
