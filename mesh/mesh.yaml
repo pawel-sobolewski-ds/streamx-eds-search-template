@@ -12,6 +12,7 @@ descriptors:
           events: {}
         outgoing:
           relayed-events: {}
+
   external-references-rewriter:
     type: "processing"
     containers:
@@ -22,6 +23,7 @@ descriptors:
         outgoing:
           outgoing-resources: {}
           download-requests: {}
+
   indexable-resources-producer:
     type: "processing"
     containers:
@@ -33,6 +35,28 @@ descriptors:
         outgoing:
           indexable-resources: {}
           indexable-resource-fragments: {}
+
+  indexable-resources-sql-transformer:
+    type: processing
+    volumes:
+      sqlitedb:
+        size: 5Gi
+    containers:
+      processor:
+        image: ghcr.io/streamx-hub/streamx-blueprints/indexable-resources-sql-transformer:3.0.27-native
+        incoming:
+          indexable-resources: { }
+        outgoing:
+          transformations: { }
+        autoRef:
+          - from: indexable-resources
+            to: indexable-resources-state
+            using: sync-state
+        volumes:
+          - sqlitedb:/var/lib/sqlitedb
+        environment:
+          STREAMX_BLUEPRINTS_SQL_STATE_REPOSITORY_SQLITE_PATH: /var/lib/sqlitedb
+
   opensearch-sink:
     type: "edge"
     containers:
@@ -92,6 +116,21 @@ processing:
           configs:
           - "indexable-resources-producer.yaml:/deployments/config/application.yaml"
 
+  indexable-resources-sql-transformer:
+    descriptor: indexable-resources-sql-transformer
+    containers:
+      processor:
+        incoming:
+          indexable-resources:
+            ref: relay.indexable-resources
+        outgoing:
+          transformations:
+            ref: relay.data
+        environment:
+          QUARKUS_CONFIG_LOCATIONS: "/deployments/config/application.yaml"
+        volumesFrom:
+          configs:
+            - "indexable-resources-sql-transformer.yaml:/deployments/config/application.yaml"
 edge:
   opensearch-sink:
     descriptor: "opensearch-sink"
