@@ -96,25 +96,36 @@ sources:
       - "com.streamx.blueprints.page.published.v1"
       - "com.streamx.blueprints.page.unpublished.v1"
 processing:
+  indexable-resources-relay:
+    descriptor: relay
+    containers:
+      service:
+        incoming:
+          events:
+            ref: relay.indexable-resources
+        outgoing:
+          relayed-events:
+            ref: outbox.indexable-resources
+
   indexable-resources-producer:
-    descriptor: "indexable-resources-producer"
+    descriptor: indexable-resources-producer
     containers:
       processor:
         incoming:
           pages:
-            ref: "inbox.pages"
+            ref: relay.pages
           fragments:
-            ref: "relay.fragments"
+            ref: relay.fragments
         outgoing:
           indexable-resources:
-            ref: "outbox.indexable-resources"
+            ref: relay.indexable-resources
           indexable-resource-fragments:
-            ref: "outbox.indexable-resource-fragments"
+            ref: outbox.indexable-resource-fragments
         environment:
           QUARKUS_CONFIG_LOCATIONS: "/deployments/config/application.yaml"
         volumesFrom:
           configs:
-          - "indexable-resources-producer.yaml:/deployments/config/application.yaml"
+            - "indexable-resources-producer.yaml:/deployments/config/application.yaml"
 
   indexable-resources-sql-transformer:
     descriptor: indexable-resources-sql-transformer
