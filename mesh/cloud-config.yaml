@@ -1,5 +1,11 @@
 ---
-global: {}
+global:
+  services:
+    edge:
+      opensearch-sink:
+        replicas: 1
+        stateful: true
+
 clusters:
   eu-central-waw-edge:
     enabled: true

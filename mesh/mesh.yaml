@@ -12,16 +12,7 @@ descriptors:
           events: {}
         outgoing:
           relayed-events: {}
-  external-references-rewriter:
-    type: "processing"
-    containers:
-      processor:
-        image: "ghcr.io/streamx-hub/streamx-blueprints/external-references-rewriter:3.0.27-native"
-        incoming:
-          incoming-resources: {}
-        outgoing:
-          outgoing-resources: {}
-          download-requests: {}
+
   indexable-resources-producer:
     type: "processing"
     containers:
@@ -33,30 +24,43 @@ descriptors:
         outgoing:
           indexable-resources: {}
           indexable-resource-fragments: {}
+
   opensearch-sink:
-    type: "edge"
+    type: edge
+    volumes:
+      opensearch-data:
+        size: 20Gi
+        persistent: true
+      rocksdb:
+        size: 20Gi
+        persistent: true
     containers:
       sink:
-        image: "ghcr.io/streamx-hub/streamx-blueprints/web-server-sink:3.0.27-native"
+        image: ghcr.io/streamx-hub/streamx-blueprints/opensearch-sink:3.0.27-native
         incoming:
-          resources:
-            initState: "delta"
+          indexable-resources:
+            initState: delta
+          indexable-resource-fragments:
+            initState: delta
+        servicePorts:
+          - 8082:8080
+        volumes:
+          - opensearch-data:/usr/share/opensearch/data
+          - rocksdb:/var/lib/rocksdb
         environment:
-          STREAMX_BLUEPRINTS_WEB_SERVER_SINK_STORAGE_ROOT_DIRECTORY: "/srv/www"
-        volumes:
-        - "repository-volume:/srv/www"
+          QUARKUS_ELASTICSEARCH_HOSTS: ${STREAMX_SERVICE_ID}.opensearch:9201
+      opensearch:
+        image: registry.prod-ext.streamx.cloud/streamx-docker-hub-public-proxy/opensearchproject/opensearch:2.16.0
         servicePorts:
-        - "8083:8080"
-      webserver:
-        image: "registry.prod-ext.streamx.cloud/streamx-docker-hub-public-proxy/library/nginx:1.26.0"
+          - 9201:9201
         volumes:
-        - "repository-volume:/usr/share/nginx/html"
-        servicePorts:
-        - "8084:80"
-    volumes:
-      repository-volume:
-        size: "20Gi"
-        persistent: true
+          - opensearch-data:/usr/share/opensearch/data
+        environment:
+          network.host: 0.0.0.0
+          http.port: "9201"
+          discovery.type: single-node
+          DISABLE_SECURITY_PLUGIN: "true"
+
 ingestion:
   rest-ingestion:
     containers:
@@ -71,6 +75,7 @@ sources:
       produces:
       - "com.streamx.blueprints.page.published.v1"
       - "com.streamx.blueprints.page.unpublished.v1"
+
 processing:
   indexable-resources-producer:
     descriptor: "indexable-resources-producer"
@@ -112,6 +117,7 @@ edge:
         environmentFrom:
           secrets:
           - "encrypted/opensearch-sink-opensearch.properties"
+
 networking:
   httpRoutes:
     ingestion-route:
