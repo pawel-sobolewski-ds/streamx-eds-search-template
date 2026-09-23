@@ -138,10 +138,4 @@ networking:
         - path:
             type: "PathPrefix"
             value: "/search"
-      - backendRefs:
-        - name: "edge/web-server-sink"
-          port: 8084
-        matches:
-        - path:
-            type: "PathPrefix"
-            value: "/"
+

@@ -5,9 +5,6 @@ global:
       opensearch-sink:
         replicas: 2
         stateful: true
-      web-server-sink:
-        replicas: 2
-        stateful: true
 clusters:
   eu-west-par-edge:
     enabled: true
